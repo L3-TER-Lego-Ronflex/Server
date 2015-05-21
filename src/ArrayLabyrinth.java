@@ -1,3 +1,4 @@
+import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 
 
@@ -75,90 +76,101 @@ public class ArrayLabyrinth implements Labyrinth {
 
 	@Override
 	public boolean isWallNorth(Position pos) {
-		// TODO Auto-generated method stub
-		return false;
+		if (pos.getY() == this.height) {
+			return true;
+		} else {
+			return this.horizontalWalls[pos.getY() - 1][pos.getX()];
+		}
 	}
 
 	@Override
 	public boolean isWallSouth(Position pos) {
-		// TODO Auto-generated method stub
-		return false;
+		if (pos.getY() == 0) {
+			return true;
+		} else {
+			return this.horizontalWalls[pos.getY()][pos.getX()];
+		}
 	}
 
 	@Override
 	public boolean isWallEast(Position pos) {
-		// TODO Auto-generated method stub
-		return false;
+		if (pos.getX() == this.width) {
+			return true;
+		} else {
+			return this.verticalWalls[pos.getY()][pos.getX()];
+		}
 	}
 
 	@Override
 	public boolean isWallWest(Position pos) {
-		// TODO Auto-generated method stub
-		return false;
+		if (pos.getX() == 0) {
+			return true;
+		} else {
+			return this.verticalWalls[pos.getY()][pos.getX() - 1];
+		}
 	}
 
 	@Override
 	public boolean isExplored(Position pos) {
-		// TODO Auto-generated method stub
-		return false;
+		return this.explored[pos.getY()][pos.getX()];
 	}
 
 	@Override
 	public void setWallNorth(Position pos, boolean b) {
-		// TODO Auto-generated method stub
-
+		this.horizontalWalls[pos.getY() - 1][pos.getX()] = b;
 	}
 
 	@Override
 	public void setWallSouth(Position pos, boolean b) {
-		// TODO Auto-generated method stub
-
+		this.horizontalWalls[pos.getY()][pos.getX()] = b;
 	}
 
 	@Override
 	public void setWallEast(Position pos, boolean b) {
-		// TODO Auto-generated method stub
-
+		this.verticalWalls[pos.getY()][pos.getX()] = b;
 	}
 
 	@Override
 	public void setWallWest(Position pos, boolean b) {
-		// TODO Auto-generated method stub
-
+		this.verticalWalls[pos.getY()][pos.getX() - 1] = b;
 	}
 
 	@Override
 	public void setExplored(Position pos, boolean b) {
-		// TODO Auto-generated method stub
-
+		this.explored[pos.getY()][pos.getX()] = b;
 	}
 
 	@Override
 	public int getWidth() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.width;
 	}
 
 	@Override
 	public int getHeight() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.height;
 	}
 
 	@Override
 	public Position getStart() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.start;
 	}
 
 	@Override
 	public Position getEnd() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.end;
 	}
 	
 	public String graphicalRepresentation() {
 		// TODO Generate a graphical representation of the labyrinth.
+		// Width: 2 * width + 1
+		// Height: 2 * height + 1
+		StringBuffer sb = new StringBuffer((2 * this.width + 2) * (2 * this.height + 1) - 1);
+		for (int i = 0; i < this.height; i++) {
+			// Horizontal walls i
+			for (int j = 0; j < this.width; j++) {
+				// TODO Finir ce truc ?
+			}
+		}
 		return "";
 	}
 }
