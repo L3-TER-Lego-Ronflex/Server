@@ -165,12 +165,47 @@ public class ArrayLabyrinth implements Labyrinth {
 		// Width: 2 * width + 1
 		// Height: 2 * height + 1
 		StringBuffer sb = new StringBuffer((2 * this.width + 2) * (2 * this.height + 1) - 1);
+		
+		// First line
+		for (int i = 0; i < this.width; i++) {
+			sb.append("+-");
+		}
+		sb.append("+\n");
+		
 		for (int i = 0; i < this.height; i++) {
-			// Horizontal walls i
-			for (int j = 0; j < this.width; j++) {
-				// TODO Finir ce truc ?
+			// Vertical walls line
+			sb.append("| ");
+			for (int j = 0; j < this.width - 1; j++) {
+				//sb.append(' ');
+				if (this.verticalWalls[i][j]) {
+					sb.append('|');
+				} else {
+					sb.append(' ');
+				}
+				sb.append(' ');
+			}
+			sb.append("|\n");
+			
+			// Horizontal walls line
+			if (i < this.height - 1) {
+				for (int j = 0; j < this.width; j++) {
+					sb.append('+');
+					if (this.horizontalWalls[i][j]) {
+						sb.append('-');
+					} else {
+						sb.append(' ');
+					}
+				}
+				sb.append("+\n");
 			}
 		}
-		return "";
+		
+		// Last ligne
+		for (int i = 0; i < this.width; i++) {
+			sb.append("+-");
+		}
+		sb.append("+");
+		
+		return sb.toString();
 	}
 }
