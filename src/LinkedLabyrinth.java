@@ -167,56 +167,6 @@ public class LinkedLabyrinth implements Labyrinth {
 		return this.end;
 	}
 	
-	public String graphicalRepresentation() {
-		// TODO Generate a graphical representation of the labyrinth.
-		// Width: 2 * width + 1
-		// Height: 2 * height + 1
-		StringBuffer sb = new StringBuffer((2 * this.width + 2) * (2 * this.height + 1) - 1);
-		
-		// First line
-		for (int i = 0; i < this.width; i++) {
-			sb.append('+');
-			if (this.horizontalWalls.get(0).get(i)) {
-				sb.append('-');
-			} else {
-				sb.append(' ');
-			};
-		}
-		sb.append("+\n");
-		
-		for (int i = 0; i < this.height; i++) {
-			// Vertical walls line
-			for (int j = 0; j < this.width; j++) {
-				//sb.append(' ');
-				if (this.verticalWalls.get(i).get(j)) {
-					sb.append('|');
-				} else {
-					sb.append(' ');
-				}
-				sb.append(' ');
-			}
-			if (this.verticalWalls.get(i).get(this.width)) {
-				sb.append('|');
-			} else {
-				sb.append(' ');
-			}
-			sb.append('\n');
-			
-			// Horizontal walls line
-			for (int j = 0; j < this.width; j++) {
-				sb.append('+');
-				if (this.horizontalWalls.get(i).get(j)) {
-					sb.append('-');
-				} else {
-					sb.append(' ');
-				}
-			}
-			sb.append("+\n");
-		}
-		
-		return sb.toString();
-	}
-
 	@Override
 	public String findPath() {
 		// TODO Auto-generated method stub
@@ -259,7 +209,7 @@ public class LinkedLabyrinth implements Labyrinth {
 				this.horizontalWalls.get(i).addFirst(false);
 				this.explored.get(i).addFirst(false);
 			}
-			this.horizontalWalls.get(this.height).addFirst(false);
+			this.horizontalWalls.get(this.height).addFirst(false); // Bottom wall
 			
 			this.width++;
 			
@@ -290,5 +240,55 @@ public class LinkedLabyrinth implements Labyrinth {
 			}
 			
 		}
+	}
+	
+	public String graphicalRepresentation() {
+		// Width: 2 * width + 1
+		// Height: 2 * height + 1
+		StringBuffer sb = new StringBuffer((2 * this.width + 2) * (2 * this.height + 1) - 1);
+		
+		//for (int i = 0; i < this.height; i++) {
+		for (int i = this.height - 1; i >= 0; i--) {
+			// Horizontal walls line
+			for (int j = 0; j < this.width; j++) {
+				sb.append('+');
+				if (this.horizontalWalls.get(i + 1).get(j)) {
+					sb.append('-');
+				} else {
+					sb.append(' ');
+				}
+			}
+			sb.append("+\n");
+			
+			// Vertical walls line
+			for (int j = 0; j < this.width; j++) {
+				//sb.append(' ');
+				if (this.verticalWalls.get(i).get(j)) {
+					sb.append('|');
+				} else {
+					sb.append(' ');
+				}
+				sb.append(' ');
+			}
+			if (this.verticalWalls.get(i).get(this.width)) {
+				sb.append('|');
+			} else {
+				sb.append(' ');
+			}
+			sb.append('\n');
+		}
+		
+		// Last line
+		for (int i = 0; i < this.width; i++) {
+			sb.append('+');
+			if (this.horizontalWalls.get(0).get(i)) {
+				sb.append('-');
+			} else {
+				sb.append(' ');
+			};
+		}
+		sb.append("+\n");
+		
+		return sb.toString();
 	}
 }

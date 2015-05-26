@@ -15,13 +15,27 @@ public class MainTests {
 		
 		// On tente d'explorer la case de gauche
 		// La position retournée par setExplored et la nouvelle position du robot
-		robot = al.setExplored(new Position(-1, 0), true);
+		robot = al.setExplored(robot.next(Orientation.WEST), true);
 		
 		// Dés qu'on l'a exploré, on pose des murs sur sa case
 		al.setWall(robot, Orientation.NORTH, true);
 		al.setWall(robot, Orientation.WEST, true);
 		
-		// On regarde à quoi ressemble le labyrinthe
+		// On regarde où est le robot à quoi ressemble le labyrinthe
+		System.out.println(robot);
+		System.out.println(al.graphicalRepresentation());
+		
+		// On continue l'exploration et la carto
+		robot = al.setExplored(robot.next(Orientation.SOUTH), true);
+		al.setWall(robot, Orientation.WEST, true);
+		al.setWall(robot, Orientation.SOUTH, true);
+		
+		robot = al.setExplored(robot.next(Orientation.EAST), true);
+		al.setWall(robot, Orientation.EAST, true);
+		al.setWall(robot, Orientation.SOUTH, true);
+		
+		// On regarde à quoi ressemble otre labyrinthe final
+		System.out.println(robot);
 		System.out.println(al.graphicalRepresentation());
 	}
 }
