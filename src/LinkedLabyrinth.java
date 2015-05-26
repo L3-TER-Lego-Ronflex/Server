@@ -1,46 +1,59 @@
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 
-public class ArrayLabyrinth implements Labyrinth {
-	
-	private final int width;
-	private final int height;
-	private boolean[][] horizontalWalls;
-	private boolean[][] verticalWalls;
-	private boolean[][] explored;
+public class LinkedLabyrinth implements Labyrinth {
+	private static final long serialVersionUID = 1L;
+	private LinkedList<LinkedList<Boolean>> horizontalWalls;
+	private LinkedList<LinkedList<Boolean>> verticalWalls;
+	private LinkedList<LinkedList<Boolean>> explored;
 	private Position start;
 	private Position end;
+	private int width;
+	private int height;
 
-	public ArrayLabyrinth(int width, int height, Position start, Position end) {
-		this.width = width;
-		this.height = height;
-		this.horizontalWalls = new boolean[height - 1][width];
-		this.verticalWalls = new boolean[height][width - 1];
-		this.explored = new boolean[height][width];
+	public LinkedLabyrinth() {
+		this.width = 1;
+		this.height = 1;
+		
+		LinkedList<Boolean> l;
+		
+		this.horizontalWalls = new LinkedList<LinkedList<Boolean>>();
+		l = new LinkedList<Boolean>();
+		l.add(false);
+		l.add(false);
+		this.horizontalWalls.add(l);
+		
+		this.verticalWalls = new LinkedList<LinkedList<Boolean>>();
+		l = new LinkedList<Boolean>();
+		l.add(false);
+		this.verticalWalls.add(l);
+		l = new LinkedList<Boolean>();
+		l.add(false);
+		this.verticalWalls.add(l);
 	}
 
-	@Override
 	public void fromString(String str) {
 		int cpt = 0;
 		
-		for (int i = 0; i < this.height - 1; i++) {
+		for (int i = 0; i < this.height + 1; i++) {
 			for (int j = 0; j < this.width; j++) {
 				if (str.charAt(cpt) == '1') {
-					this.horizontalWalls[i][j] = true;
+					this.horizontalWalls.get(i).set(j, true);
 				} else {
-					this.horizontalWalls[i][j] = false;
+					this.horizontalWalls.get(i).set(j, false);
 				}
 				cpt++;
 			}
 		}
 		
 		for (int i = 0; i < this.height; i++) {
-			for (int j = 0; j < this.width - 1; j++) {
+			for (int j = 0; j < this.width + 1; j++) {
 				if (str.charAt(cpt) == '1') {
-					this.verticalWalls[i][j] = true;
+					this.verticalWalls.get(i).set(j, true);
 				} else {
-					this.verticalWalls[i][j] = false;
+					this.verticalWalls.get(i).set(j, false);
 				}
 				cpt++;
 			}
@@ -51,9 +64,9 @@ public class ArrayLabyrinth implements Labyrinth {
 	public String toString() {
 		StringBuffer str = new StringBuffer();
 		
-		for (int i = 0; i < this.height - 1; i++) {
+		for (int i = 0; i < this.height + 1; i++) {
 			for (int j = 0; j < this.width; j++) {
-				if (this.horizontalWalls[i][j]) {
+				if (this.horizontalWalls.get(i).get(j)) {
 					str.append('1');
 				} else {
 					str.append('0');
@@ -62,8 +75,8 @@ public class ArrayLabyrinth implements Labyrinth {
 		}
 		
 		for (int i = 0; i < this.height; i++) {
-			for (int j = 0; j < this.width - 1; j++) {
-				if (this.verticalWalls[i][j]) {
+			for (int j = 0; j < this.width + 1; j++) {
+				if (this.verticalWalls.get(i).get(j)) {
 					str.append('1');
 				} else {
 					str.append('0');
@@ -73,40 +86,21 @@ public class ArrayLabyrinth implements Labyrinth {
 		
 		return str.toString();
 	}
-
+	
 	@Override
-	public boolean isWallNorth(Position pos) {
-		if (pos.getY() == this.height) {
-			return true;
-		} else {
-			return this.horizontalWalls[pos.getY() - 1][pos.getX()];
-		}
-	}
-
-	@Override
-	public boolean isWallSouth(Position pos) {
-		if (pos.getY() == 0) {
-			return true;
-		} else {
-			return this.horizontalWalls[pos.getY()][pos.getX()];
-		}
-	}
-
-	@Override
-	public boolean isWallEast(Position pos) {
-		if (pos.getX() == this.width) {
-			return true;
-		} else {
-			return this.verticalWalls[pos.getY()][pos.getX()];
-		}
-	}
-
-	@Override
-	public boolean isWallWest(Position pos) {
-		if (pos.getX() == 0) {
-			return true;
-		} else {
-			return this.verticalWalls[pos.getY()][pos.getX() - 1];
+	public boolean isWall(Position pos, Orientation ori) {
+		try {
+			if (ori.equals(Orientation.EAST)) {
+				return this.verticalWalls.get(pos.getY()).get(pos.getX() + 1);
+			} else if (ori.equals(Orientation.NORTH)) {
+				return this.horizontalWalls.get(pos.getY() + 1).get(pos.getX());
+			} else if (ori.equals(Orientation.WEST)) {
+				return this.verticalWalls.get(pos.getY()).get(pos.getX());
+			} else if (ori.equals(Orientation.SOUTH)) {
+				return this.horizontalWalls.get(pos.getY()).get(pos.getX());
+			} else {
+				throw 
+			}
 		}
 	}
 
@@ -207,5 +201,23 @@ public class ArrayLabyrinth implements Labyrinth {
 		sb.append("+");
 		
 		return sb.toString();
+	}
+
+	@Override
+	public void setWall(Position pos, Orientation ori, boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean setExplored(Position pos, boolean b) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String findPath() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

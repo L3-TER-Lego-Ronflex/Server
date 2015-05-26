@@ -42,4 +42,13 @@ public class Orientation {
 			return "Undefined";
 		}
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Orientation) {
+			return this.i == ((Orientation) obj).i;
+		} else {
+			return super.equals(obj);
+		}
+	}
 }

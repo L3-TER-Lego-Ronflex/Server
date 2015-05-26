@@ -1,3 +1,5 @@
+import java.io.Serializable;
+
 /*
 ^       N
 |       ^
@@ -22,21 +24,18 @@ Example for a 3x3 labyrinth:
 bbbbbbbbbbbb
 b (0: no wall or 1: wall): the walls, horizontally (south to north), then vertically (west to east), line by line, no edges
 */
-public interface Labyrinth {
-	public String toString();
-	public void fromString(String str);
-	public boolean isWallNorth(Position pos);
-	public boolean isWallSouth(Position pos);
-	public boolean isWallEast(Position pos);
-	public boolean isWallWest(Position pos);
+public interface Labyrinth extends Serializable {
+	public boolean isWall(Position pos, Orientation ori) throws UnexploredPosition;
+	public void setWall(Position pos, Orientation ori, boolean b);
 	public boolean isExplored(Position pos);
-	public void setWallNorth(Position pos, boolean b);
-	public void setWallSouth(Position pos, boolean b);
-	public void setWallEast(Position pos, boolean b);
-	public void setWallWest(Position pos, boolean b);
-	public void setExplored(Position pos, boolean b);
+	public boolean explore(Position pos);
 	public int getWidth();
 	public int getHeight();
 	public Position getStart();
 	public Position getEnd();
+	/**
+	 * Find the quickest path to go from the start to the end of the Labyrinth.
+	 * @return A sequence of instructions to follow the path
+	 */
+	public String findPath();
 }
