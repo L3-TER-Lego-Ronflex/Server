@@ -1,10 +1,7 @@
-import java.awt.image.BufferStrategy;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 
 public class LinkedLabyrinth implements Labyrinth {
-	private static final long serialVersionUID = 1L;
 	private LinkedList<LinkedList<Boolean>> horizontalWalls;
 	private LinkedList<LinkedList<Boolean>> verticalWalls;
 	private LinkedList<LinkedList<Boolean>> explored;
@@ -22,16 +19,24 @@ public class LinkedLabyrinth implements Labyrinth {
 		this.horizontalWalls = new LinkedList<LinkedList<Boolean>>();
 		l = new LinkedList<Boolean>();
 		l.add(false);
+		this.horizontalWalls.add(l);
+		l = new LinkedList<Boolean>();
 		l.add(false);
 		this.horizontalWalls.add(l);
 		
 		this.verticalWalls = new LinkedList<LinkedList<Boolean>>();
 		l = new LinkedList<Boolean>();
 		l.add(false);
-		this.verticalWalls.add(l);
-		l = new LinkedList<Boolean>();
 		l.add(false);
 		this.verticalWalls.add(l);
+		
+		this.explored = new LinkedList<LinkedList<Boolean>>();
+		l = new LinkedList<Boolean>();
+		l.add(false);
+		this.explored.add(l);
+		
+		this.start = new Position(0, 0);
+		// this.end = null;
 	}
 
 	public void fromString(String str) {
@@ -89,49 +94,57 @@ public class LinkedLabyrinth implements Labyrinth {
 	
 	@Override
 	public boolean isWall(Position pos, Orientation ori) {
-		try {
-			if (ori.equals(Orientation.EAST)) {
-				return this.verticalWalls.get(pos.getY()).get(pos.getX() + 1);
-			} else if (ori.equals(Orientation.NORTH)) {
-				return this.horizontalWalls.get(pos.getY() + 1).get(pos.getX());
-			} else if (ori.equals(Orientation.WEST)) {
-				return this.verticalWalls.get(pos.getY()).get(pos.getX());
-			} else if (ori.equals(Orientation.SOUTH)) {
-				return this.horizontalWalls.get(pos.getY()).get(pos.getX());
-			} else {
-				throw 
-			}
+		if (ori.equals(Orientation.EAST)) {
+			return this.verticalWalls.get(pos.getY()).get(pos.getX() + 1);
+		} else if (ori.equals(Orientation.NORTH)) {
+			return this.horizontalWalls.get(pos.getY() + 1).get(pos.getX());
+		} else if (ori.equals(Orientation.WEST)) {
+			return this.verticalWalls.get(pos.getY()).get(pos.getX());
+		} else if (ori.equals(Orientation.SOUTH)) {
+			return this.horizontalWalls.get(pos.getY()).get(pos.getX());
+		}
+		return true;
+	}
+	
+	@Override
+	public void setWall(Position pos, Orientation ori, boolean b) {
+		if (ori.equals(Orientation.EAST)) {
+			this.verticalWalls.get(pos.getY()).set(pos.getX() + 1, b);
+		} else if (ori.equals(Orientation.NORTH)) {
+			this.horizontalWalls.get(pos.getY() + 1).set(pos.getX(), b);
+		} else if (ori.equals(Orientation.WEST)) {
+			this.verticalWalls.get(pos.getY()).set(pos.getX(), b);
+		} else if (ori.equals(Orientation.SOUTH)) {
+			this.horizontalWalls.get(pos.getY()).set(pos.getX(), b);
 		}
 	}
 
 	@Override
 	public boolean isExplored(Position pos) {
-		return this.explored[pos.getY()][pos.getX()];
+		return this.explored.get(pos.getY()).get(pos.getX());
 	}
 
 	@Override
-	public void setWallNorth(Position pos, boolean b) {
-		this.horizontalWalls[pos.getY() - 1][pos.getX()] = b;
-	}
-
-	@Override
-	public void setWallSouth(Position pos, boolean b) {
-		this.horizontalWalls[pos.getY()][pos.getX()] = b;
-	}
-
-	@Override
-	public void setWallEast(Position pos, boolean b) {
-		this.verticalWalls[pos.getY()][pos.getX()] = b;
-	}
-
-	@Override
-	public void setWallWest(Position pos, boolean b) {
-		this.verticalWalls[pos.getY()][pos.getX() - 1] = b;
-	}
-
-	@Override
-	public void setExplored(Position pos, boolean b) {
-		this.explored[pos.getY()][pos.getX()] = b;
+	public Position setExplored(Position pos, boolean b) {
+		Position modifiedPos;
+		if (pos.getX() < 0) {
+			extend(Orientation.WEST);
+			modifiedPos = new Position(pos.getX() + 1, pos.getY());
+		} else if (pos.getX() >= this.width) {
+			extend(Orientation.EAST);
+			modifiedPos = pos;
+		} else if (pos.getY() < 0) {
+			extend(Orientation.SOUTH);
+			modifiedPos = new Position(pos.getX(), pos.getY() + 1);
+		} else if (pos.getY() >= this.height) {
+			extend(Orientation.NORTH);
+			modifiedPos = pos;
+		} else {
+			modifiedPos = pos;
+		}
+		
+		this.explored.get(modifiedPos.getY()).set(modifiedPos.getX(), b);
+		return modifiedPos;
 	}
 
 	@Override
@@ -162,62 +175,120 @@ public class LinkedLabyrinth implements Labyrinth {
 		
 		// First line
 		for (int i = 0; i < this.width; i++) {
-			sb.append("+-");
+			sb.append('+');
+			if (this.horizontalWalls.get(0).get(i)) {
+				sb.append('-');
+			} else {
+				sb.append(' ');
+			};
 		}
 		sb.append("+\n");
 		
 		for (int i = 0; i < this.height; i++) {
 			// Vertical walls line
-			sb.append("| ");
-			for (int j = 0; j < this.width - 1; j++) {
+			for (int j = 0; j < this.width; j++) {
 				//sb.append(' ');
-				if (this.verticalWalls[i][j]) {
+				if (this.verticalWalls.get(i).get(j)) {
 					sb.append('|');
 				} else {
 					sb.append(' ');
 				}
 				sb.append(' ');
 			}
-			sb.append("|\n");
+			if (this.verticalWalls.get(i).get(this.width)) {
+				sb.append('|');
+			} else {
+				sb.append(' ');
+			}
+			sb.append('\n');
 			
 			// Horizontal walls line
-			if (i < this.height - 1) {
-				for (int j = 0; j < this.width; j++) {
-					sb.append('+');
-					if (this.horizontalWalls[i][j]) {
-						sb.append('-');
-					} else {
-						sb.append(' ');
-					}
+			for (int j = 0; j < this.width; j++) {
+				sb.append('+');
+				if (this.horizontalWalls.get(i).get(j)) {
+					sb.append('-');
+				} else {
+					sb.append(' ');
 				}
-				sb.append("+\n");
 			}
+			sb.append("+\n");
 		}
-		
-		// Last ligne
-		for (int i = 0; i < this.width; i++) {
-			sb.append("+-");
-		}
-		sb.append("+");
 		
 		return sb.toString();
-	}
-
-	@Override
-	public void setWall(Position pos, Orientation ori, boolean b) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean setExplored(Position pos, boolean b) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	@Override
 	public String findPath() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	private void extend(Orientation ori) {
+		if (ori.equals(Orientation.EAST)) {
+			
+			for (int i = 0; i < this.height; i++) {
+				this.verticalWalls.get(i).addLast(false);
+				this.horizontalWalls.get(i).addLast(false);
+				this.explored.get(i).addLast(false);
+			}
+			this.horizontalWalls.get(this.height).addLast(false);
+			
+			this.width++;
+			
+		} else if (ori.equals(Orientation.NORTH)) {
+			
+			LinkedList<Boolean> v = new LinkedList<Boolean>();
+			LinkedList<Boolean> h = new LinkedList<Boolean>();
+			LinkedList<Boolean> e = new LinkedList<Boolean>();
+			for (int i = 0; i < this.width; i++) {
+				v.add(false);
+				h.add(false);
+				e.add(false);
+			}
+			v.add(false);
+			this.verticalWalls.addLast(v);
+			this.horizontalWalls.addLast(h);
+			this.explored.addLast(e);
+			
+			this.height++;
+			
+		} else if (ori.equals(Orientation.WEST)) {
+			
+			for (int i = 0; i < this.height; i++) {
+				this.verticalWalls.get(i).addFirst(false);
+				this.horizontalWalls.get(i).addFirst(false);
+				this.explored.get(i).addFirst(false);
+			}
+			this.horizontalWalls.get(this.height).addFirst(false);
+			
+			this.width++;
+			
+			this.start = new Position(this.start.getX() + 1, this.start.getY());
+			if (this.end != null) {
+				this.end = new Position(this.end.getX() + 1, this.end.getY());
+			}
+		} else if (ori.equals(Orientation.SOUTH)) {
+			
+			LinkedList<Boolean> v = new LinkedList<Boolean>();
+			LinkedList<Boolean> h = new LinkedList<Boolean>();
+			LinkedList<Boolean> e = new LinkedList<Boolean>();
+			for (int i = 0; i < this.width; i++) {
+				v.add(false);
+				h.add(false);
+				e.add(false);
+			}
+			v.add(false);
+			this.verticalWalls.addFirst(v);
+			this.horizontalWalls.addFirst(h);
+			this.explored.addFirst(e);
+			
+			this.height++;
+			
+			this.start = new Position(this.start.getX(), this.start.getY() + 1);
+			if (this.end != null) {
+				this.end = new Position(this.end.getX(), this.end.getY() + 1);
+			}
+			
+		}
 	}
 }
