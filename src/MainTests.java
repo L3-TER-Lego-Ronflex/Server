@@ -31,11 +31,31 @@ public class MainTests {
 		al.setWall(robot, Orientation.SOUTH, true);
 		
 		robot = al.setExplored(robot.next(Orientation.EAST), true);
-		al.setWall(robot, Orientation.EAST, true);
 		al.setWall(robot, Orientation.SOUTH, true);
 		
+		robot = al.setExplored(robot.next(Orientation.EAST), true);
+		al.setWall(robot, Orientation.SOUTH, true);
+		al.setWall(robot, Orientation.EAST, true);
+		
+		robot = al.setExplored(robot.next(Orientation.NORTH), true);
+		al.setWall(robot, Orientation.NORTH, true);
+		al.setWall(robot, Orientation.EAST, true);
+		al.setEnd(robot);
+		
 		// On regarde à quoi ressemble otre labyrinthe final
-		System.out.println(robot);
+		System.out.println("Rob: " + robot);
+		System.out.println("Start: " + al.getStart());
+		System.out.println("End: " + al.getEnd());
 		System.out.println(al.graphicalRepresentation());
+		System.out.println(al.toString());
+		
+		// On recrée le labyrinthe
+		LinkedLabyrinth nal = new LinkedLabyrinth();
+		nal.fromString(al.toString());
+		System.out.println(nal.graphicalRepresentation());
+		
+		// Vérifications de conversions
+		System.out.println("Both graphical equals: " + al.graphicalRepresentation().equals(nal.graphicalRepresentation()));
+		System.out.println("Both String equals: " + al.toString().equals(nal.toString()));
 	}
 }

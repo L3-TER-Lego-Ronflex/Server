@@ -14,6 +14,7 @@ public interface Labyrinth {
 	public int getHeight();
 	public Position getStart();
 	public Position getEnd();
+	public void setEnd(Position pos);
 	/**
 	 * Find the quickest path to go from the start to the end of the Labyrinth.
 	 * @return A sequence of instructions to follow the path

@@ -1,7 +1,9 @@
+import java.io.Serializable;
 import java.util.LinkedList;
 
 
-public class LinkedLabyrinth implements Labyrinth {
+public class LinkedLabyrinth implements Labyrinth, Serializable {
+	private static final long serialVersionUID = 1L;
 	private LinkedList<LinkedList<Boolean>> horizontalWalls;
 	private LinkedList<LinkedList<Boolean>> verticalWalls;
 	private LinkedList<LinkedList<Boolean>> explored;
@@ -40,11 +42,27 @@ public class LinkedLabyrinth implements Labyrinth {
 	}
 
 	public void fromString(String str) {
+		String[] tabstr = str.split(";");
+		
+		int width = new Integer(tabstr[0]);
+		int height = new Integer(tabstr[1]);
+		
+		this.start = new Position(new Integer(tabstr[2]), new Integer(tabstr[3]));
+		this.end = new Position(new Integer(tabstr[4]), new Integer(tabstr[5]));
+		
+		while (this.width < width) {
+			extend(Orientation.EAST);
+		}
+		
+		while (this.height < height) {
+			extend(Orientation.NORTH);
+		}
+		
 		int cpt = 0;
 		
 		for (int i = 0; i < this.height + 1; i++) {
 			for (int j = 0; j < this.width; j++) {
-				if (str.charAt(cpt) == '1') {
+				if (tabstr[6].charAt(cpt) == '1') {
 					this.horizontalWalls.get(i).set(j, true);
 				} else {
 					this.horizontalWalls.get(i).set(j, false);
@@ -55,7 +73,7 @@ public class LinkedLabyrinth implements Labyrinth {
 		
 		for (int i = 0; i < this.height; i++) {
 			for (int j = 0; j < this.width + 1; j++) {
-				if (str.charAt(cpt) == '1') {
+				if (tabstr[6].charAt(cpt) == '1') {
 					this.verticalWalls.get(i).set(j, true);
 				} else {
 					this.verticalWalls.get(i).set(j, false);
@@ -68,6 +86,8 @@ public class LinkedLabyrinth implements Labyrinth {
 	@Override
 	public String toString() {
 		StringBuffer str = new StringBuffer();
+		
+		str.append(this.width + ";" + this.height + ";" + this.start.getX() + ";" + this.start.getY() + ";" + this.end.getX() + ";" + this.end.getY() + ";");
 		
 		for (int i = 0; i < this.height + 1; i++) {
 			for (int j = 0; j < this.width; j++) {
@@ -166,6 +186,11 @@ public class LinkedLabyrinth implements Labyrinth {
 	public Position getEnd() {
 		return this.end;
 	}
+
+	@Override
+	public void setEnd(Position pos) {
+		this.end = pos;
+	}
 	
 	@Override
 	public String findPath() {
@@ -177,11 +202,11 @@ public class LinkedLabyrinth implements Labyrinth {
 		if (ori.equals(Orientation.EAST)) {
 			
 			for (int i = 0; i < this.height; i++) {
-				this.verticalWalls.get(i).addLast(false);
-				this.horizontalWalls.get(i).addLast(false);
-				this.explored.get(i).addLast(false);
+				this.verticalWalls.get(i).add(false);
+				this.horizontalWalls.get(i).add(false);
+				this.explored.get(i).add(false);
 			}
-			this.horizontalWalls.get(this.height).addLast(false);
+			this.horizontalWalls.get(this.height).add(false);
 			
 			this.width++;
 			
@@ -196,20 +221,20 @@ public class LinkedLabyrinth implements Labyrinth {
 				e.add(false);
 			}
 			v.add(false);
-			this.verticalWalls.addLast(v);
-			this.horizontalWalls.addLast(h);
-			this.explored.addLast(e);
+			this.verticalWalls.add(v);
+			this.horizontalWalls.add(h);
+			this.explored.add(e);
 			
 			this.height++;
 			
 		} else if (ori.equals(Orientation.WEST)) {
 			
 			for (int i = 0; i < this.height; i++) {
-				this.verticalWalls.get(i).addFirst(false);
-				this.horizontalWalls.get(i).addFirst(false);
-				this.explored.get(i).addFirst(false);
+				this.verticalWalls.get(i).add(0, false);
+				this.horizontalWalls.get(i).add(0, false);
+				this.explored.get(i).add(0, false);
 			}
-			this.horizontalWalls.get(this.height).addFirst(false); // Bottom wall
+			this.horizontalWalls.get(this.height).add(0, false); // Bottom wall
 			
 			this.width++;
 			
@@ -228,9 +253,9 @@ public class LinkedLabyrinth implements Labyrinth {
 				e.add(false);
 			}
 			v.add(false);
-			this.verticalWalls.addFirst(v);
-			this.horizontalWalls.addFirst(h);
-			this.explored.addFirst(e);
+			this.verticalWalls.add(0, v);
+			this.horizontalWalls.add(0, h);
+			this.explored.add(0, e);
 			
 			this.height++;
 			
@@ -268,7 +293,15 @@ public class LinkedLabyrinth implements Labyrinth {
 				} else {
 					sb.append(' ');
 				}
-				sb.append(' ');
+				
+				// Square
+				if (new Position(j, i).equals(this.start)) {
+					sb.append('S');
+				} else if (this.end != null && new Position(j, i).equals(this.end)) {
+					sb.append('E');
+				} else {
+					sb.append(' ');
+				}
 			}
 			if (this.verticalWalls.get(i).get(this.width)) {
 				sb.append('|');
@@ -287,7 +320,7 @@ public class LinkedLabyrinth implements Labyrinth {
 				sb.append(' ');
 			};
 		}
-		sb.append("+\n");
+		sb.append("+");
 		
 		return sb.toString();
 	}

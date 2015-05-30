@@ -2,6 +2,8 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Scanner;
 
 import lejos.pc.comm.NXTCommLogListener;
@@ -15,6 +17,7 @@ public class MainServer {
 	public static void main(String[] args) {
 		NXTConnector conn = new NXTConnector();
 		
+		/*
 		conn.addLogListener(new NXTCommLogListener() {
 			public void logEvent(String message) {
 				System.out.println("BTSend Log.listener: "+message);
@@ -25,6 +28,7 @@ public class MainServer {
 				 throwable.printStackTrace();	
 			}
 		});
+		*/
 		
 		// Connect to RobotAlex over Bluetooth
 		boolean connected = conn.connectTo("btspp://RobotAlex");
@@ -37,28 +41,42 @@ public class MainServer {
 		DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
 		DataInputStream dis = new DataInputStream(conn.getInputStream());
 		
+		ObjectOutputStream oos;
+		ObjectInputStream ois;
+		try {
+			oos = new ObjectOutputStream(conn.getOutputStream());
+		} catch (IOException ioe) {
+			System.out.println("IO Exception creating ObjectOutputStream:");
+			System.out.println(ioe.getMessage());
+			return;
+		}
+		try {
+			ois = new ObjectInputStream(conn.getInputStream());
+		} catch (IOException ioe) {
+			System.out.println("IO Exception creating ObjectInputStream:");
+			System.out.println(ioe.getMessage());
+			return;
+		}
+		
 		s = new Scanner(System.in);
 				
-		for(int i=0;i<100;i++) {
-			try {
-				String str = s.nextLine();
-				System.out.println("Sending " + str);
-				dos.writeUTF(str);
-				dos.flush();
-				
-			} catch (IOException ioe) {
-				System.out.println("IO Exception writing bytes:");
-				System.out.println(ioe.getMessage());
-				break;
-			}
+		try {
+			String str = s.nextLine();
+			System.out.println("Sending " + str);
+			dos.writeUTF(str);
+			oos.writeObject(new LinkedLabyrinth());
+			dos.flush();
 			
-			try {
-				System.out.println("Received " + dis.readUTF());
-			} catch (IOException ioe) {
-				System.out.println("IO Exception reading bytes:");
-				System.out.println(ioe.getMessage());
-				break;
-			}
+		} catch (IOException ioe) {
+			System.out.println("IO Exception writing String:");
+			System.out.println(ioe.getMessage());
+		}
+		
+		try {
+			System.out.println("Received " + dis.readUTF());
+		} catch (IOException ioe) {
+			System.out.println("IO Exception reading String:");
+			System.out.println(ioe.getMessage());
 		}
 		
 		try {
