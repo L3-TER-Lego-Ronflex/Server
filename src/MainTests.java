@@ -57,5 +57,8 @@ public class MainTests {
 		// Vérifications de conversions
 		System.out.println("Both graphical equals: " + al.graphicalRepresentation().equals(nal.graphicalRepresentation()));
 		System.out.println("Both String equals: " + al.toString().equals(nal.toString()));
+		
+		// Calcul du plus court chemin
+		System.out.println("Shortest path: " + al.findPath());
 	}
 }

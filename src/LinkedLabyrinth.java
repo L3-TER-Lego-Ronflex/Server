@@ -1,9 +1,8 @@
-import java.io.Serializable;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 
-public class LinkedLabyrinth implements Labyrinth, Serializable {
-	private static final long serialVersionUID = 1L;
+public class LinkedLabyrinth implements Labyrinth {
 	private LinkedList<LinkedList<Boolean>> horizontalWalls;
 	private LinkedList<LinkedList<Boolean>> verticalWalls;
 	private LinkedList<LinkedList<Boolean>> explored;
@@ -194,7 +193,76 @@ public class LinkedLabyrinth implements Labyrinth, Serializable {
 	
 	@Override
 	public String findPath() {
-		// TODO Auto-generated method stub
+		// We fill a matrix with minimum cost to go to a square from the start plus one
+		int[][] matrix = new int[this.width][this.height];
+		propagate(1, this.start, matrix);
+		
+		// We create an Orientation List to make a path, it is from the start to the end
+		Position pos = this.end;
+		LinkedList<Orientation> ll = new LinkedList<Orientation>();
+		Orientation ori = hasNextLowerAccessible(pos, matrix);
+		ll.add(0, ori);
+		pos = pos.next(ori);
+		while (!pos.equals(this.start)) {
+			ori = hasNextLowerAccessible(pos, matrix);
+			ll.add(0, ori);
+			pos = pos.next(ori);
+		}
+		
+		// We invert the List so we have the right path from the start to the end
+		int llsize = ll.size();
+		for (int i = 0; i < llsize; i++) {
+			ll.set(i, ll.get(i).rotate(true).rotate(true));
+		}
+		
+		StringBuffer bs = new StringBuffer();
+		bs.append('f');
+		Iterator<Orientation> it = ll.iterator();
+		ori = it.next();
+		while(it.hasNext()) {
+			Orientation next = it.next();
+			if (ori.equals(next)) { // If same orientation, we don't turn
+				bs.append('f');
+			} else if (ori.rotate(true).equals(next)) { // If left to get next orientation
+				bs.append("lf");
+			} else if (ori.rotate(false).equals(next)) { // If right to get next orientation
+				bs.append("rf");
+			}
+			ori = next;
+		}
+		
+		return bs.toString();
+	}
+	
+	private void propagate(int i, Position pos, int[][] matrix) {
+		matrix[pos.getX()][pos.getY()] = i++;
+		if (!this.isWall(pos, Orientation.NORTH) && matrix[pos.getX()][pos.getY() + 1] == 0) {
+			propagate(i, pos.next(Orientation.NORTH), matrix);
+		}
+		if (!this.isWall(pos, Orientation.SOUTH) && matrix[pos.getX()][pos.getY() - 1] == 0) {
+			propagate(i, pos.next(Orientation.SOUTH), matrix);
+		}
+		if (!this.isWall(pos, Orientation.EAST) && matrix[pos.getX() + 1][pos.getY()] == 0) {
+			propagate(i, pos.next(Orientation.EAST), matrix);
+		}
+		if (!this.isWall(pos, Orientation.WEST) && matrix[pos.getX() - 1][pos.getY()] == 0) {
+			propagate(i, pos.next(Orientation.WEST), matrix);
+		}
+	}
+	
+	private Orientation hasNextLowerAccessible(Position pos, int[][] matrix) {
+		if (!this.isWall(pos, Orientation.NORTH) && matrix[pos.getX()][pos.getY() + 1] == matrix[pos.getX()][pos.getY()] - 1) {
+			return Orientation.NORTH;
+		}
+		if (!this.isWall(pos, Orientation.SOUTH) && matrix[pos.getX()][pos.getY() - 1] == matrix[pos.getX()][pos.getY()] - 1) {
+			return Orientation.SOUTH;
+		}
+		if (!this.isWall(pos, Orientation.EAST) && matrix[pos.getX() + 1][pos.getY()] == matrix[pos.getX()][pos.getY()] - 1) {
+			return Orientation.EAST;
+		}
+		if (!this.isWall(pos, Orientation.WEST) && matrix[pos.getX() - 1][pos.getY()] == matrix[pos.getX()][pos.getY()] - 1) {
+			return Orientation.WEST;
+		}
 		return null;
 	}
 	

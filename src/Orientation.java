@@ -10,16 +10,16 @@ public class Orientation {
 	public final static Orientation WEST = new Orientation(2);
 	public final static Orientation SOUTH = new Orientation(3);
 
-	public Orientation rotate(boolean trigo, Orientation o) {
+	public Orientation rotate(boolean trigo) {
 		if (trigo) {
-			int i = o.i + 1;
+			int i = this.i + 1;
 			if (i > 3)
 				return new Orientation(0);
 			else
 				return new Orientation(i);
 		}
 		else {
-			int i = o.i - 1;
+			int i = this.i - 1;
 			if (i < 0)
 				return new Orientation(3);
 			else
