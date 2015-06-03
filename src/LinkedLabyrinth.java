@@ -219,6 +219,7 @@ public class LinkedLabyrinth implements Labyrinth {
 		bs.append('f');
 		Iterator<Orientation> it = ll.iterator();
 		ori = it.next();
+		System.out.println("Starting orientation: " + ori);
 		while(it.hasNext()) {
 			Orientation next = it.next();
 			if (ori.equals(next)) { // If same orientation, we don't turn
@@ -391,5 +392,17 @@ public class LinkedLabyrinth implements Labyrinth {
 		sb.append("+");
 		
 		return sb.toString();
+	}
+	
+	public void fortify() {
+		for (int i = 0; i < this.height; i++) {
+			this.setWall(new Position(0, i), Orientation.WEST, true);
+			this.setWall(new Position(this.width - 1, i), Orientation.EAST, true);
+		}
+		
+		for (int i = 0; i < this.width; i++) {
+			this.setWall(new Position(i, 0), Orientation.SOUTH, true);
+			this.setWall(new Position(i, this.height - 1), Orientation.NORTH, true);
+		}
 	}
 }

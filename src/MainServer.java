@@ -2,21 +2,16 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Scanner;
-
 import lejos.pc.comm.NXTConnector;
 
 
 public class MainServer {
-
-	private static Scanner s;
-
 	public static void main(String[] args) {
 		// A connector can be used to connect to the robot over Bluetooth or USB
 		NXTConnector conn = new NXTConnector();
 		
-		// Here we use Bluetooth (btspp) for the robot RobotAlex
-		boolean connected = conn.connectTo("btspp://RobotAlex");
+		// Here we use Bluetooth (btspp) for the robot NXT
+		boolean connected = conn.connectTo("btspp://NXT");
 		
 		// We quit the application if we can't connect
 		if (!connected) {
@@ -24,26 +19,45 @@ public class MainServer {
 			System.exit(1);
 		}
 		
+		// We create the streams to send and receive data
 		DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
 		DataInputStream dis = new DataInputStream(conn.getInputStream());
-				
+		
+		// We receive the Labyrinth String
+		String llstr = "";
 		try {
-			String str = s.nextLine();
-			System.out.println("Sending " + str);
-			dos.writeUTF(str);
+			llstr = dis.readUTF();
+			System.out.println("Received " + llstr);
+		} catch (IOException ioe) {
+			System.out.println("IO Exception reading String:");
+			System.out.println(ioe.getMessage());
+			return;
+		}
+		LinkedLabyrinth ll = new LinkedLabyrinth();
+		ll.fromString(llstr);
+		ll.fortify();
+		System.out.println(ll.graphicalRepresentation());
+		
+		// Compute the shortest path
+		String path = ll.findPath();
+		
+		System.out.println("Waiting key is pressed to send the path (and start)...");
+		try {
+			System.in.read();
+		} catch (IOException e) {}
+		
+		// We send the displacement sequence String
+		try {
+			System.out.println("Sending " + path);
+			dos.writeUTF(path);
 			dos.flush();
 		} catch (IOException ioe) {
 			System.out.println("IO Exception writing String:");
 			System.out.println(ioe.getMessage());
+			return;
 		}
 		
-		try {
-			System.out.println("Received " + dis.readUTF());
-		} catch (IOException ioe) {
-			System.out.println("IO Exception reading String:");
-			System.out.println(ioe.getMessage());
-		}
-		
+		// We close the streams then the connection
 		try {
 			dis.close();
 			dos.close();
@@ -51,6 +65,7 @@ public class MainServer {
 		} catch (IOException ioe) {
 			System.out.println("IOException closing connection:");
 			System.out.println(ioe.getMessage());
+			return;
 		}
 	}
 }
