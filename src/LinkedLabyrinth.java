@@ -195,7 +195,7 @@ public class LinkedLabyrinth implements Labyrinth {
 	public String findPath() {
 		// We fill a matrix with minimum cost to go to a square from the start plus one
 		int[][] matrix = new int[this.width][this.height];
-		propagate(1, this.start, matrix);
+		propagate(this.start, matrix);
 		
 		// We create an Orientation List to make a path, it is from the start to the end
 		Position pos = this.end;
@@ -235,20 +235,33 @@ public class LinkedLabyrinth implements Labyrinth {
 		return bs.toString();
 	}
 	
-	private void propagate(int i, Position pos, int[][] matrix) {
-		matrix[pos.getX()][pos.getY()] = i++;
-		if (!this.isWall(pos, Orientation.NORTH) && matrix[pos.getX()][pos.getY() + 1] == 0) {
-			propagate(i, pos.next(Orientation.NORTH), matrix);
-		}
-		if (!this.isWall(pos, Orientation.SOUTH) && matrix[pos.getX()][pos.getY() - 1] == 0) {
-			propagate(i, pos.next(Orientation.SOUTH), matrix);
-		}
-		if (!this.isWall(pos, Orientation.EAST) && matrix[pos.getX() + 1][pos.getY()] == 0) {
-			propagate(i, pos.next(Orientation.EAST), matrix);
-		}
-		if (!this.isWall(pos, Orientation.WEST) && matrix[pos.getX() - 1][pos.getY()] == 0) {
-			propagate(i, pos.next(Orientation.WEST), matrix);
-		}
+	private void propagate(Position pos, int[][] matrix) {
+		int count = 1;
+		matrix[pos.getX()][pos.getY()] = 1;
+		boolean notYet;
+		do {
+			notYet = false;
+			for (int i = 0; i < this.width; i++) {
+				for (int j = 0; j < this.height; j++) {
+					if (matrix[i][j] == count) {
+						notYet = true;
+						if (!this.isWall(new Position(i, j), Orientation.NORTH) && matrix[i][j + 1] == 0) {
+							matrix[i][j + 1] = count + 1;
+						}
+						if (!this.isWall(new Position(i, j), Orientation.SOUTH) && matrix[i][j - 1] == 0) {
+							matrix[i][j - 1] = count + 1;
+						}
+						if (!this.isWall(new Position(i, j), Orientation.EAST) && matrix[i + 1][j] == 0) {
+							matrix[i + 1][j] = count + 1;
+						}
+						if (!this.isWall(new Position(i, j), Orientation.WEST) && matrix[i - 1][j] == 0) {
+							matrix[i - 1][j] = count + 1;
+						}
+					}
+				}
+			}
+			count++;
+		} while (notYet);
 	}
 	
 	private Orientation hasNextLowerAccessible(Position pos, int[][] matrix) {
